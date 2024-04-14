@@ -1,13 +1,13 @@
 package org.example.socialmedia_proxy.DB;
 
-import org.example.socialmedia_proxy.DB.Builder.Builder;
 import org.example.socialmedia_proxy.DB.Builder.Query;
 
 import java.sql.*;
 import java.util.*;
 
-public class QueryBuilder implements Builder {
+public class QueryBuilder {
     private static QueryBuilder instance;
+    public static QueryBuilder query = QueryBuilder.getQueryBuilder();
 
     public static QueryBuilder getQueryBuilder() {
         if (instance == null)
@@ -18,6 +18,8 @@ public class QueryBuilder implements Builder {
     public QueryBuilder() {
         Query.isCallParameterSet = false;
         Query.isWhereSet = false;
+        Query.isParameterSet = false;
+        Query.selectAll = false;
         instance = this;
     }
 
@@ -243,7 +245,7 @@ public class QueryBuilder implements Builder {
     }
 
 
-    public Builder build() {
+    public QueryBuilder build() {
         System.out.println(Query.query);
         ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = DB.getConnection().prepareStatement(Query.query, Statement.RETURN_GENERATED_KEYS)) {
@@ -304,7 +306,6 @@ public class QueryBuilder implements Builder {
         }
     }
 
-    @Override
     public Map<String, Object> first() {
         if (Query.importedData.get("results") != null && !Query.importedData.get("results").isEmpty())
             return Query.importedData.get("results").get(0);
@@ -312,7 +313,6 @@ public class QueryBuilder implements Builder {
         return null;
     }
 
-    @Override
     public Map<String, Object> last() {
 
         if (Query.importedData.get("results") != null && !Query.importedData.get("results").isEmpty())
@@ -321,9 +321,7 @@ public class QueryBuilder implements Builder {
         return null;
     }
 
-    @Override
     public List<Map<String, Object>> all() {
-
         if (Query.importedData.get("results") != null && !Query.importedData.get("results").isEmpty())
             return Query.importedData.get("results");
 
